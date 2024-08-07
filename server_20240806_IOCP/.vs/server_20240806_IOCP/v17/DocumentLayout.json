@@ -1,9 +1,9 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\lkh77\\OneDrive\\\uBB38\uC11C\\GitHub\\SERVER\\server_20240806_IOCP\\",
+  "WorkspaceRootPath": "C:\\Users\\lkh77\\source\\repos\\server_20240806_IOCP\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{2DFFEB96-0646-42EB-A5B7-C83B1EA7883E}|server_20240806_IOCP\\server_20240806_IOCP.vcxproj|C:\\Users\\lkh77\\OneDrive\\\uBB38\uC11C\\GitHub\\SERVER\\server_20240806_IOCP\\server_20240806_IOCP\\server_20240806_IOCP.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{2DFFEB96-0646-42EB-A5B7-C83B1EA7883E}|server_20240806_IOCP\\server_20240806_IOCP.vcxproj|C:\\Users\\lkh77\\source\\repos\\server_20240806_IOCP\\server_20240806_IOCP\\server_20240806_IOCP.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{2DFFEB96-0646-42EB-A5B7-C83B1EA7883E}|server_20240806_IOCP\\server_20240806_IOCP.vcxproj|solutionrelative:server_20240806_IOCP\\server_20240806_IOCP.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
@@ -20,11 +20,11 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "server_20240806_IOCP.cpp",
-              "DocumentMoniker": "C:\\Users\\lkh77\\OneDrive\\\uBB38\uC11C\\GitHub\\SERVER\\server_20240806_IOCP\\server_20240806_IOCP\\server_20240806_IOCP.cpp",
+              "DocumentMoniker": "C:\\Users\\lkh77\\source\\repos\\server_20240806_IOCP\\server_20240806_IOCP\\server_20240806_IOCP.cpp",
               "RelativeDocumentMoniker": "server_20240806_IOCP\\server_20240806_IOCP.cpp",
-              "ToolTip": "C:\\Users\\lkh77\\OneDrive\\\uBB38\uC11C\\GitHub\\SERVER\\server_20240806_IOCP\\server_20240806_IOCP\\server_20240806_IOCP.cpp",
+              "ToolTip": "C:\\Users\\lkh77\\source\\repos\\server_20240806_IOCP\\server_20240806_IOCP\\server_20240806_IOCP.cpp",
               "RelativeToolTip": "server_20240806_IOCP\\server_20240806_IOCP.cpp",
-              "ViewState": "AQIAAE4CAAAAAAAAAAAiwGMCAAATAAAA",
+              "ViewState": "AQIAACYCAAAAAAAAAAAAAD0CAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-08-06T04:17:17.394Z",
               "EditorCaption": ""
