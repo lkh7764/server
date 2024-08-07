@@ -19,7 +19,7 @@ using namespace std;
 #define FILE_MAX    10
 #define THRPOOL_MAX 4
 
-struct COPY_CHUNCK : OVERLAPPED 
+struct COPY_CHUNCK : OVERLAPPED
 {
     // COPY_CHUNCK: 파일 복사 동작에서 필요한 정보
 
@@ -46,8 +46,8 @@ struct COPY_ENV
 
     // hw
     HANDLE  _hevRead;           // 읽기 완료 시 비신호상태가 되는 수동 리셋 이벤트
-                                //      읽기 완료하면 비신호 상태를 만들어
-                                //      출력이 중첩되지 않게 함
+    //      읽기 완료하면 비신호 상태를 만들어
+    //      출력이 중첩되지 않게 함
 };
 typedef COPY_ENV* PCOPY_ENV;
 
@@ -121,7 +121,7 @@ void ex1(int argc, _TCHAR* argv[])
     ///                 - 두 개의 스레드가 스레드풀을 구성
     ///         2. 복사되는 파일은 원본 파일과 동일한 경로에 "파일명.copied" 형태로 복사
     /// </summary>
-    
+
     // 10개의 원소를 가지는 COPY_CHUNCK 구조체 포인터 배열 선언&초기화
     PCOPY_CHUNCK arChunck[FILE_MAX];
     memset(arChunck, 0, sizeof(PCOPY_CHUNCK) * FILE_MAX);
@@ -189,11 +189,11 @@ void ex1(int argc, _TCHAR* argv[])
 
     for (int i = 0; i < lChnCnt; i++) {
         PCOPY_CHUNCK pcc = arChunck[i];
-        
+
         BOOL bIsOK = ReadFile(pcc->_hfSrc, pcc->_arBuff, BUFF_SIZE, NULL, pcc);
         if (!bIsOK) {
             DWORD dwErrCode = GetLastError();
-            if (dwErrCode != ERROR_IO_PENDING) 
+            if (dwErrCode != ERROR_IO_PENDING)
                 break;
         }
     }
@@ -379,12 +379,14 @@ void ex2(int argc, _TCHAR* argv[])
 // hw
 #define FILE_NUM    4
 
-void printNums(const vector<int>& nums)
+void printNums(const vector<int>& nums, HANDLE& hevRead)
 {
     printf("DATA: ");
     for (const int& num : nums)
         printf("%d, ", num);
     printf("\n");
+
+    SetEvent(hevRead);
 }
 
 bool readAndPrintData(PCOPY_CHUNCK& pcc, HANDLE& hevRead)
@@ -393,17 +395,17 @@ bool readAndPrintData(PCOPY_CHUNCK& pcc, HANDLE& hevRead)
 
     // readData
     BOOL bIsOK = ReadFile(pcc->_hfSrc, pcc->_arBuff, BUFF_SIZE, NULL, pcc);
-    
+
     // 읽기가 정상적으로 완료되면 printData진행
     if (!bIsOK && GetLastError() == ERROR_IO_PENDING) {
         //cout << "readAndPrintData TRUE" << endl;
-         
+
         //ResetEvent(hevRead);
 
         // BYTE to char
         char cBuff[BUFF_SIZE + 1];
         memcpy(cBuff, pcc->_arBuff, BUFF_SIZE);
-        
+
         // char to sstream & int vector 생성
         string str(cBuff, sizeof(cBuff));
         stringstream str2(str);
@@ -412,12 +414,31 @@ bool readAndPrintData(PCOPY_CHUNCK& pcc, HANDLE& hevRead)
             nums.push_back(num);
 
         // printData 전에 출력이 중첩되지 않도록 _hevRead를 비신호상태로 설정
-        printNums(nums);
+        printNums(nums, hevRead);
 
         //SetEvent(hevRead);
     }
 
     return bIsOK;
+}
+
+void printData(PCOPY_CHUNCK& pcc, HANDLE& hevRead)
+{
+    // BYTE to char
+    char cBuff[BUFF_SIZE + 1];
+    memcpy(cBuff, pcc->_arBuff, BUFF_SIZE);
+
+    // char to sstream & int vector 생성
+    string str(cBuff, sizeof(cBuff));
+    stringstream str2(str);
+    vector<int> nums; int num;
+    while (str2 >> num)
+        nums.push_back(num);
+
+    // printData 전에 출력이 중첩되지 않도록 _hevRead를 비신호상태로 설정
+    ResetEvent(hevRead);
+
+    printNums(nums, hevRead);
 }
 
 DWORD WINAPI IOCPCopyProc_hw(PVOID pParam)
@@ -433,7 +454,6 @@ DWORD WINAPI IOCPCopyProc_hw(PVOID pParam)
 
         BOOL bIsOK = GetQueuedCompletionStatus(pEnv->_hIocp, &dwTrBytes, &ulKey, (LPOVERLAPPED*)&pcc, INFINITE);
 
-        //WaitForSingleObject(pEnv->_hevRead, INFINITE);
         cout << "[THR ACTIVE] Thr " << dwThrID << endl;
 
         if (!bIsOK) {
@@ -445,15 +465,18 @@ DWORD WINAPI IOCPCopyProc_hw(PVOID pParam)
         }
 
         if (ulKey == READ_KEY) {
-            //WaitForSingleObject(pEnv->_hevRead, INFINITE);
             printf(" => Thr %d Read bytes : %d\n", dwThrID, pcc->Offset);
+
+            printData(pcc, pEnv->_hevRead);
+            WaitForSingleObject(pEnv->_hevRead, INFINITE);
+
             bIsOK = WriteFile(pcc->_hfDst, pcc->_arBuff, dwTrBytes, NULL, pcc);
         }
 
         else {
             pcc->Offset += dwTrBytes;
 
-            //WaitForSingleObject(pEnv->_hevRead, INFINITE);
+            WaitForSingleObject(pEnv->_hevRead, INFINITE);
             printf(" <= Thr %d Wrote bytes : %d\n", dwThrID, pcc->Offset);
             //bIsOK = readAndPrintData(pcc, pEnv->_hevRead);
             bIsOK = ReadFile(pcc->_hfSrc, pcc->_arBuff, BUFF_SIZE, NULL, pcc);
@@ -468,7 +491,6 @@ DWORD WINAPI IOCPCopyProc_hw(PVOID pParam)
         continue;
 
     $LABEL_CLOSE:
-        //WaitForSingleObject(pEnv->_hevRead, INFINITE);
         if (dwErrCode == ERROR_HANDLE_EOF)
             printf(" ****** Thr %d copy successfully completed...\n", dwThrID);
         else
@@ -556,7 +578,8 @@ void hw(int argc, _TCHAR* argv[])
     for (int i = 0; i < lChnCnt; i++) {
         PCOPY_CHUNCK pcc = arChunck[i];
 
-        BOOL bIsOK = readAndPrintData(pcc, env._hevRead);
+        //BOOL bIsOK = readAndPrintData(pcc, env._hevRead);
+        BOOL bIsOK = ReadFile(pcc->_hfSrc, pcc->_arBuff, BUFF_SIZE, NULL, pcc);
         if (!bIsOK) {
             DWORD dwErrCode = GetLastError();
             if (dwErrCode != ERROR_IO_PENDING)
@@ -587,8 +610,8 @@ void hw(int argc, _TCHAR* argv[])
 void _tmain(int argc, _TCHAR* argv[])
 {
     if (argc < 2) {
-        cout    << "Uasge : MultiCopyIOCP SourceFile1 SourceFile2 SourceFile3 ..."
-                << endl;
+        cout << "Uasge : MultiCopyIOCP SourceFile1 SourceFile2 SourceFile3 ..."
+            << endl;
         return;
     }
 
