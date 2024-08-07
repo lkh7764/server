@@ -435,6 +435,8 @@ void printData(PCOPY_CHUNCK& pcc, HANDLE& hevRead)
     while (str2 >> num)
         nums.push_back(num);
 
+    WaitForSingleObject(hevRead, INFINITE);
+
     // printData 전에 출력이 중첩되지 않도록 _hevRead를 비신호상태로 설정
     ResetEvent(hevRead);
 
